@@ -1,0 +1,16 @@
+# Dependencies (Never commit these!)
+node_modules/
+package-lock.json
+
+# Environment Variables & Secrets
+.env
+.env.local
+
+# Logs and Debug files
+logs
+*.log
+npm-debug.log*
+
+# Testing / Coverage Reports
+coverage/
+.nyc_output/

@@ -1,8 +1,44 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
+// Strict regular expression pattern for validating email format
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
+// 🏠 Address Subdocument Schema
+const addressSchema = new mongoose.Schema({
+  street: {
+    type: String,
+    required: [true, 'Street address is required'],
+    trim: true,
+  },
+  city: {
+    type: String,
+    required: [true, 'City is required'],
+    trim: true,
+  },
+  state: {
+    type: String,
+    required: [true, 'State is required'],
+    trim: true,
+  },
+  postalCode: {
+    type: String,
+    required: [true, 'Postal code is required'],
+    trim: true,
+  },
+  country: {
+    type: String,
+    required: [true, 'Country is required'],
+    default: 'India',
+    trim: true,
+  },
+  isDefault: {
+    type: Boolean,
+    default: false,
+  }
+});
+
+// 👤 Main User Schema
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -31,27 +67,26 @@ const userSchema = new mongoose.Schema(
       },
       default: 'customer',
     },
+    // 🚚 Embedding the Address subdocuments as an array
+    addresses: [addressSchema],
   },
   {
     timestamps: true,
   }
 );
 
-// 🔒 Pre-Save Hook: Automatically hash the password before saving
-userSchema.pre('save', async function (next) {
+// 🔒 Pre-Save Hook: Automatically hash the password before saving (Modern Async Syntax)
+userSchema.pre('save', async function () {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {
-    return next();
+    return; // Simply return to skip hashing
   }
 
   try {
-    // Generate a salt with 10 rounds (industry standard for performance vs. security)
     const salt = await bcrypt.genSalt(10);
-    // Hash the password using the generated salt
     this.password = await bcrypt.hash(this.password, salt);
-    next();
   } catch (error) {
-    next(error);
+    throw new Error(error.message); // Throwing stops the document save operation automatically
   }
 });
 
