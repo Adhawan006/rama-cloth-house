@@ -1,88 +1,99 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Product name is required'],
+      required: [true, "Product name is required"],
       trim: true,
-      maxlength: [120, 'Product name cannot exceed 120 characters'],
+      maxlength: 120,
     },
-    slug: {
+
+    department: {
       type: String,
-      required: [true, 'Product slug is required'],
-      unique: true,
-      lowercase: true,
-      trim: true,
+      required: true,
+      enum: ["Men", "Women", "Traditional", "Home"],
     },
-    description: {
+
+    category: {
       type: String,
-      required: [true, 'Product description is required'],
-      trim: true,
+      required: true,
+      enum: [
+        "Suiting",
+        "Shirting",
+        "Suit Fabric",
+        "Semi-Stitched Party Wear",
+        "Casual Suit",
+        "Dupatta",
+        "Pagri Rubia",
+        "Bed Sheet",
+        "Towel",
+      ],
     },
-    price: {
-      type: Number,
-      required: [true, 'Product price is required'],
-      min: [0, 'Price cannot be negative'],
-    },
-    // 🏷️ Fabric Specific Fields
+
     brand: {
       type: String,
-      default: 'Unbranded', // e.g., Raymond, OCM, or Local Artisan
+      default: "Local",
       trim: true,
     },
-    sellingUnit: {
+
+    material: {
       type: String,
-      enum: {
-        values: ['meter', 'piece', 'set'],
-        message: '{VALUE} is not a valid selling unit',
-      },
-      default: 'piece', // Sarees & Suits are pieces; loose cloth is meters
+      required: true,
+      trim: true,
     },
+
     color: {
       type: String,
-      required: [true, 'Color is required'],
+      required: true,
       trim: true,
     },
-    material: {
-      type: String, // e.g., Cotton, Silk, Linen, Wool, Georgette
-      required: [true, 'Material composition is required'],
-      trim: true,
+
+    size: {
+      type: String,
+      default: "N/A",
     },
-    // 🚚 Relationship Reference to Category
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category',
-      required: [true, 'Product must belong to a category'],
+
+    sellingUnit: {
+      type: String,
+      enum: ["meter", "piece", "set"],
+      default: "piece",
     },
-    // 🖼️ Cloudinary Image Array
-    images: [
-      {
-        url: {
-          type: String,
-          required: [true, 'Image URL is required'],
-        },
-        public_id: {
-          type: String,
-          required: [true, 'Cloudinary public ID is required'],
-        },
-      },
-    ],
-    // 📦 Inventory Management
+
+    purchasePrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    sellingPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
     stock: {
       type: Number,
-      required: [true, 'Stock quantity is required'],
-      min: [0, 'Stock cannot be negative'],
+      required: true,
       default: 0,
+      min: 0,
     },
-    // ⭐ Customer Feedback (Averages updated automatically later)
-    ratings: {
-      type: Number,
-      default: 0,
+
+    supplier: {
+      type: String,
+      default: "",
+      trim: true,
     },
-    numOfReviews: {
-      type: Number,
-      default: 0,
+
+    image: {
+      type: String,
+      default: "",
+    },
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   {
@@ -90,12 +101,10 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-// 🔍 Create Indexes for Performance
-// Indexing category facilitates filter queries; indexing price assists sorting; indexing text allows keyword search
+productSchema.index({ name: "text", brand: "text" });
 productSchema.index({ category: 1 });
-productSchema.index({ price: 1 });
-productSchema.index({ name: 'text', description: 'text' });
+productSchema.index({ department: 1 });
 
-const Product = mongoose.model('Product', productSchema);
+const Product = mongoose.model("Product", productSchema);
 
 export default Product;

@@ -3,6 +3,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
+import productRoutes from "./routes/productRoutes.js";
 
 // 1. Load environment variables
 dotenv.config();
@@ -24,8 +25,8 @@ app.get('/api/health', (req, res) => {
 });
 
 // 🛣️ Mount API Routers
-app.use('/api/users', userRoutes);
-
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 // 4. Start the Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
